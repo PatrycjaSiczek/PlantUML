@@ -28,11 +28,11 @@ public class Main {
 //            Optional<String> changedPeople = people
 //List<Person> people = Person.fromCsv("family.csv");//pobieramy liste osob, chcac odfiltrowac liste osob ktore sa np jan kowalski
 //                    .stream()//analizujemy element po elemencie
-//                    .sorted((person1, person2) -> person1.name.compareTo(person2.name))
+//                    .sorted((person1, person2) -> person1.name.compareTo(person2.name))//komparator -->porownuje dwa imiona sortuje po imieniach
 //                    .map(person -> person.name)//kazda osobe przetwazamy na imie -zamiana z person na name, od tej pory to name
-//                    .filter(name -> !name.equals("Anna Dąbrowska"))//wykorzystujemt lambde -->
+//                    .filter(name -> !name.equals("Anna Dąbrowska"))//wykorzystujemt lambde -->person.name.equals("jan kowalski")) jesli to bedzie prawda to to pojdzie dalej
 //                    .max((name1, name2) -> name1.compareTo(name2));
-//                    .collect(Collectors.toList());
+//                    .collect(Collectors.toList());//powrot do listy ze strumienia
 
 //            if(!changedPeople.isEmpty()) {
 //                System.out.println(changedPeople.get());
@@ -47,3 +47,8 @@ public class Main {
 //            Person person = people.get(2);
 //            String uml = person.toUML();
 //            PlantUMLRunner.generate(uml, "uml", person.name);
+
+
+//public static List<Person> sortByBirtDate(List<Person> people) {    List<Person> result = people\
+//    public static List<Person> filterWithString(List<Person> people, String subString) {    List<Person> result = people            .stream()            .filter(name -> name.name.contains(subString))
+//            .collect(Collectors.toList());    return result;}

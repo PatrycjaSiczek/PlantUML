@@ -17,7 +17,7 @@ public class Person implements Serializable {
         String[] fields = line.split(",");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-
+//data urodzin
         String birthString = fields[1];
         String deathString = fields[2];
         LocalDate birth = null, death = null;
@@ -29,20 +29,26 @@ public class Person implements Serializable {
         return new Person(fields[0], birth, death);
     }
 
+//tworzy liste osob na podstawie pliku
     public static List<Person> fromCsv(String path) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(path));
         List<Person> result = new ArrayList<>();
         List<PersonWithParentsNames> resultWithParents =  new ArrayList<>();
+        //oczytuje linie i przetwaza je
         String line;
         br.readLine();
         try {
             while ((line = br.readLine()) != null) {
+                //tworzy obiekt personpaentsname z lini svg
                 PersonWithParentsNames personWithNames = PersonWithParentsNames.fromCsvLine(line);
+              //dlugosc zycia
                 personWithNames.person.validateLifespan();
+               //dodaje obiekt do listy
                 personWithNames.person.validateAmbiguity(result);
                 resultWithParents.add(personWithNames);
                 result.add(personWithNames.person);
             }
+            //wiek rodzicow
             PersonWithParentsNames.linkRelatives(resultWithParents);
             try {
                 for(Person person: result)
@@ -61,17 +67,18 @@ public class Person implements Serializable {
         }
         return result;
     }
+    //dugosc zycia
     private void validateLifespan() throws NegativeLifespanException {
         if(this.death != null && this.birth.isAfter(this.death))
             throw new NegativeLifespanException(this);
     }
-
+//unikalnosc osoby
     private void validateAmbiguity(List<Person> peopleSoFar) throws AmbiguousPersonException {
         for(Person person: peopleSoFar)
             if(person.name.equals(this.name))
                 throw new AmbiguousPersonException(name);
     }
-
+//wiek rodzicow osoby
     private void validateParentingAge() throws ParentingAgeException {
         for(Person parent: parents)
             if (birth.isBefore(parent.birth.minusYears(15)) || ( parent.death != null && birth.isAfter(parent.death)))
@@ -81,7 +88,7 @@ public class Person implements Serializable {
     public void addParent(Person person) {
         parents.add(person);
     }
-
+//dodaje rodzica do osoby
     @Override
     public String toString() {
         return "Person{" +
@@ -91,7 +98,7 @@ public class Person implements Serializable {
                 ", parents=" + parents +
                 '}';
     }
-
+//zapisuje do pliku binarnego
     public static void toBinaryFile(List<Person> people, String filename) throws IOException {
         try (
                 FileOutputStream fos = new FileOutputStream(filename);
@@ -100,7 +107,7 @@ public class Person implements Serializable {
             oos.writeObject(people);
         }
     }
-
+//wczytuje liste osob z pliku binarnego
     public static List<Person> fromBinaryFile(String filename) throws IOException, ClassNotFoundException {
         try (
                 FileInputStream fis = new FileInputStream(filename);
@@ -116,7 +123,7 @@ public class Person implements Serializable {
         StringBuilder objects = new StringBuilder(); //wydajnie tworzy string obiekty Anna Jan
         StringBuilder relations = new StringBuilder(); //relacje Jan --> Anna
 
-        //LAMBDA!!
+        //LAMBDA!! usuwa spacje z nazw
         Function<String, String>
         replaceSpaces = str -> str.replaceAll(" ", "");//to po strzalce zastepuje
 
@@ -124,6 +131,7 @@ public class Person implements Serializable {
 
         for(Person parent : parents) {//w kazdym wywloaniu parent nowy bedzie podsawiany
             objects.append("object " +  replaceSpaces.apply(parent.name) + "\n");//append dodaje cos do buildera, po + sie dodaje wiec append
+          //dodaje relacje miedzy obiektem a rodzicami
             relations.append(replaceSpaces.apply(name) + " <-- " +  replaceSpaces.apply(parent.name) + "\n");
         }
 
@@ -133,12 +141,12 @@ public class Person implements Serializable {
                 relations
         );
     }
-
+//zwraca liste osob w plantuml
     public static String toUML(List<Person> people) {
         Set<String> objects = new HashSet<>();//bez powtorek
         Set<String> relations = new HashSet<>();
 
-        Function<String, String> replaceSpaces = str -> str.replaceAll(" ", "");
+        Function<String, String> replaceSpaces = str -> str.replaceAll(" ", "");//lambda usuwa spacje z nazw
 
         for(Person person : people) {
             objects.add("object " + replaceSpaces.apply(person.name));
