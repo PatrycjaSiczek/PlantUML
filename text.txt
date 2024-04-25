@@ -1,0 +1,6 @@
+@startuml
+object Jan
+object Anna
+
+Jan --> Anna
+@enduml
